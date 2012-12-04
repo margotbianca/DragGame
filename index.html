@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>DragGame</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta name="author" content="The Chopping Block, Inc." />
+	<meta name="geo.country" content="US" />
+	<meta name="dc.language" content="en" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	
+	<link rel="stylesheet" href="styles.css" type="text/css" media="screen" charset="utf-8" />
+	<link rel="stylesheet" href="jquery-ui-1.9.2.custom 2/css/smoothness/jquery-ui-1.9.2.custom.css" type="text/css" media="screen" title="no title" charset="utf-8">
+	
+	<style type="text/css" media="screen">		
+		/*local styles if any (quick tests and local only overrides)*/
+		
+		.wrap{
+			position: relative;
+			margin-left: auto;
+			margin-right: auto;
+			border: 4px solid black;
+			background-color: gray;
+			border-radius: 30px;
+			width: 960px;
+			height: 600px;
+		}
+		
+		.container{
+			position: absolute;
+			width: 200px;
+			height: 300px;
+			top: 150px;
+			border: 1px solid black;
+		}
+		
+		.container.left{
+			left: 0;
+		}
+		
+		.container.right{
+			right: 0;
+		}
+		
+		.catcher{
+			width: 180px;
+			height: 180px;
+			
+			margin-top: 9px;
+			margin-left: 9px;
+			border: 1px solid black;
+		}
+		
+		.piece{
+			right: 480px;
+			position: absolute;
+			width: 50px;
+			height: 50px;
+			border: 1px solid black;
+		}
+		
+		.red{
+			background-color: red;
+		}
+		
+		.blue{
+			background-color:blue;
+		}
+		
+
+		.console{
+			right: 410px;
+			position: absolute;
+			top: 250px;
+		}
+		
+		.scoreboard{
+			font-family: Verdana,Arial,sans-serif; font-size: 1.1em;
+			right: 355px;
+			position: absolute;
+			top: 350px;
+			width: 250px;
+			height: 100px;
+			border: 1px solid black;
+			background-color: yellow;
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+
+	<div class="wrap" >
+		<div class="container red left">
+			<div class="catcher"></div>
+		</div>
+		<div class="console">
+			<button id="startGame">Start Game</button>
+			<button id="playAgain">Play Again</button>
+		</div>
+		<div class="scoreboard">
+			<span id="current_score"></span>
+			<br><span id="lives"></span>
+			<br><span id="final_score"></span>
+		</div>
+		
+		<div class="container blue right">
+			<div class="catcher"></div>
+			<div class="score"></div>
+		</div>		
+	</div>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+	<script src="jquery-ui-1.9.2.custom 2/js/jquery-ui-1.9.2.custom.js" type="text/javascript" charset="utf-8"></script>
+
+	<script type="text/javascript" charset="utf-8">
+		//Start Game Button
+		// Game should only start on the click of a button
+		// When that button is clicked, it should disappear
+		$(function(){
+			$("#startGame").button();
+		});
+		
+		$("#startGame").click(function(){
+			$(startGame);
+			$(this).remove();
+		});
+		
+		$("#playAgain").hide();
+		
+		$(function(){
+			$("#playAgain").button();
+		});
+		
+		$("#playAgain").click(function(){
+			$(".piece").remove();
+			$("#current_score").text("")
+			$("#lives").text("")
+			$(startGame);
+			$(this).hide();
+		});
+		
+		
+		
+		//Keep Score
+			//You should get one point for each piece you place in the correct box
+			//Either have a global scorebox
+			//Or have a score for each catcher
+			//Scoring should stop on gameover
+		
+		//Multiple Lives
+		//Game over		
+		//Restart Game
+	
+		// returns a random number between the two limits provided 
+		function randomRange(min, max)
+		{
+			return ((Math.random()*(max-min)) + min); 
+		}
+		
+		
+		var startGame = function(e){
+			
+			var current_score = 0
+			var lives = 3
+			var gameon = true
+			$("#final_score").text("")
+			var score_up = function(e){
+				current_score++;
+				$("#current_score").text("Current Score: " + current_score)
+			};
+			
+			var game_over = function(e){
+				$("#current_score").text("Current Score: " + current_score)
+				// gameon = false will clear scoring
+				if(lives > 1){
+					lives = (lives - 1);
+					console.log(lives)
+					$("#lives").text("Lives remaining: " + lives)
+				}else{
+					$("#current_score").text("Game Over")
+					$("#lives").text("Lives remaining: 0")
+					$("#final_score").text("Score: " + current_score)
+					$(".piece").remove();
+					$("#playAgain").show();
+					gameon = false;
+					clearInterval(pieceInterval);
+				}
+				}
+		
+		
+			$(".container.left").droppable({
+				accept: ".piece",
+				drop: function(event, ui){
+					console.log('ui is: '+ui);
+					console.dir(ui);
+					//ui.draggable is a jquery object of the piece that was dropped
+					if(ui.draggable.hasClass("red")){
+						if(gameon){
+							$(score_up);
+							console.log(current_score)
+						}
+					}else{
+						$(game_over);
+					}
+				
+				}
+			})
+		
+			$(".container.right").droppable({
+				accept: ".piece",
+				drop: function(event, ui){
+					console.log('ui is: '+ui);
+					console.dir(ui);
+				
+					if(ui.draggable.hasClass("blue")){
+						if(gameon){
+							$(score_up);
+							console.log(current_score)
+						}
+					}else{
+						$(game_over);
+					
+					}
+				
+				}
+			})		
+		
+			var pieceInterval = setInterval(function(){
+			
+				var startTop = Math.floor(randomRange(0, 50));
+				var colorClass = "red";
+				var rightDestination = 20;
+			
+				if(Math.random() > 0.5){
+					colorClass = "blue"
+					rightDestination = 900;
+				}
+			
+				var piece = $("<div></div>").addClass("piece").addClass(colorClass).css("top",startTop).appendTo($(".wrap")).draggable();
+			
+			
+				piece.animate(
+					{"top": 250, "right": rightDestination}, 
+					{
+						duration:5000, 
+						easing: "easeInCubic", 								
+						step: function(){
+							//Checking to see if piece animated into wrong catcher
+							//Game over if it did.									
+							if($(this).position().left < 50 || $(this).position().left > 850){
+								$(game_over);
+								$(this).stop()
+							}
+						}
+				});
+
+				piece.mousedown(function(e){
+					//.stop() stops any running animation on that element				
+					$(this).stop();
+				});
+			
+			}, 1500);
+			
+			
+		};
+		
+		//setTimeout - to animate the speed of the interval
+
+	</script>
+</body>
+</html>
